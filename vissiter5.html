@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galerie NFT</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            -webkit-touch-callout: none; /* Désactiver le clic long sur les appareils tactiles */
+            -webkit-user-select: none; /* Désactiver la sélection de texte */
+            -moz-user-select: none; /* Désactiver la sélection de texte pour Firefox */
+            -ms-user-select: none; /* Désactiver la sélection de texte pour Internet Explorer/Edge */
+            user-select: none; /* Désactiver la sélection de texte pour les autres navigateurs */
+        }
+        .warning {
+            text-align: center;
+            margin: 20px 0;
+            color: red; /* Couleur de l'avertissement */
+            font-size: 1.1em; /* Taille de police de l'avertissement */
+        }
+        header {
+            background: #333;
+            color: #fff;
+            padding: 20px 0; /* Ajusté pour une meilleure apparence sur petits écrans */
+            border-bottom: #77aaff 3px solid;
+            text-align: center; /* Centrer le texte */
+        }
+        header h1 {
+            margin: 0; /* Supprimer les marges par défaut */
+            font-size: 1.5em; /* Réduire la taille du texte pour les petits écrans */
+        }
+        header a {
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+
+        /* Style du bouton jour/nuit */
+        .theme-toggle {
+            cursor: pointer;
+            padding: 10px 15px;
+            background-color: #77aaff;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+        .theme-toggle:hover {
+            background-color: #0056ea;
+        }
+        
+        .container {
+            width: 90%; /* Utiliser 90% de la largeur de l'écran */
+            margin: auto;
+            overflow: hidden;
+        }
+
+
+
+        .sold-button {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center; /* Ajuster l'espacement entre les éléments */
+            margin-top: 20px;
+        }
+        .gallery-item {
+            position: relative;
+            width: 100%; /* Utiliser 100% de la largeur disponible */
+            max-width: 300px; /* Largeur maximale pour les écrans plus grands */
+            background-color: #fff;
+            margin: 10px;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .gallery-item img {
+            width: 100%;
+            filter: blur(5px);
+            height: auto; /* Garder les proportions de l'image */
+            border-radius: 15px;
+            pointer-events: none; /* Désactiver les interactions avec l'image */
+        }
+        .gallery-item .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0); /* Couche transparente */
+            z-index: 1;
+            pointer-events: none; /* Ignore les clics */
+        }
+        .gallery-item h3 {
+            margin: 10px 0;
+            font-size: 1em; /* Ajuster la taille du texte */
+        }
+        .gallery-item p {
+            margin: 5px 0;
+            font-size: 0.9em; /* Ajuster la taille du texte */
+        }
+
+.buy-button {
+    display: block;
+    width: 80%; /* Ajustez cette largeur si nécessaire */
+    margin: 10px auto 0 auto; /* Centre horizontalement le bouton */
+    padding: 10px;
+    background-color: #77aaff;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+
+        .buy-button:hover {
+            background-color: #0056ea;
+            transition: 0.5s ease-out;
+        }
+
+                /* Mode nuit */
+        body.night-mode {
+            background-color: #2c2c2c;
+            color: white;
+        }
+        header.night-mode {
+            background-color: #444;
+            border-bottom: #0056ea 3px solid;
+        }
+        .gallery-item.night-mode {
+            background-color: #333;
+            color: white;
+        }
+        .buy-button.night-mode {
+            background-color: #0056ea;
+        }
+
+        /* Media Queries */
+        @media (min-width: 769px) {
+            .gallery-item {
+                width: 30%; /* Trois colonnes sur les grands écrans */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .gallery-item {
+                width: 45%; /* Deux colonnes sur les écrans moyens */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .gallery-item {
+                width: 100%; /* Une colonne sur les petits écrans */
+            }
+            header h1 {
+                font-size: 1.2em; /* Réduire la taille du texte du header */
+            }
+        }
+
+                /* Mode nuit */
+        body.dark-mode {
+            background-color: #1e1e1e;
+            color: #ddd;
+        }
+        body.dark-mode header {
+            background: #222;
+        }
+        body.dark-mode .gallery-item {
+            background-color: #333;
+        }
+        body.dark-mode .buy-button {
+            background-color: #444;
+        }
+        body.dark-mode .buy-button:hover {
+            background-color: #222;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Mes Collections</h1>
+            <button class="mode-toggle" id="toggleMode">Mode Nuit</button>
+        </div>
+    </header>
+
+        <!-- Avertissement centré -->
+    <div class="container">
+        <p class="warning">⚠️ Attention : Veuillez ne pas effectuer le paiement en plusieurs fois.</p>
+    </div>
+
+    <div class="container">
+        <div class="gallery">
+            <div class="gallery-item" data-id="little77" data-sold="false">
+                <img id="little7" src="littleboys7.png" alt="NFT 1">
+                <div class="overlay"></div>
+                <h3 id="littletext7">LittleBoys#7</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle7">Prix : 100€</strong></p>
+                <a href="achat.html?title=LittleBoys#7" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little99" data-sold="false">
+                <img id="little9" src="modelelittleboys.png" alt="NFT 2">
+                <div class="overlay"></div>
+                <h3 id="littletext9">LittleBoys#9</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle9">Prix : 120€</strong></p>
+                <a href="achat1.html?title=LittleBoys#9" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little100" data-sold="false">
+                <img id="little10" src="littleboys10.png" alt="NFT 3">
+                <div class="overlay"></div>
+                <h3 id="littletext10">LittleBoys#10</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle10">Prix : 120€</strong></p>
+                <a href="achat2.html?title=LittleBoys#10" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little8" data-sold="false">
+                <img id="little8" src="littleboys8.png" alt="NFT 4">
+                <div class="overlay"></div>
+                <h3 id="littletext8">LittleBoys#8</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle8">Prix : 120€</strong></p>
+                <a href="achat3.html?title=LittleBoys#8" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little5" data-sold="false">
+                <img id="little5" src="littleboys55.png" alt="NFT 5">
+                <div class="overlay"></div>
+                <h3 id="littletext5">LittleBoys#5</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle5">Prix : 100€</strong></p>
+                <a href="achat4.html?title=LittleBoys#5" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little11" data-sold="false">
+                <img id="little11" src="littleboy11.png" alt="NFT 6">
+                <div class="overlay"></div>
+                <h3 id="littletext11">LittleBoys#11</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle11">Prix : 110€</strong></p>
+                <a href="achat5.html?title=LittleBoys#11" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little17" data-sold="false">
+                <img id="little19" src="littleboys20.png" alt="NFT 7">
+                <div class="overlay"></div>
+                <h3 id="littletext19">LittleBoys#19</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle19">Prix : 170€</strong></p>
+                <a href="achat6.html?title=LittleBoys#19" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little15" data-sold="false">
+                <img id="little15" src="littleboys15.png" alt="NFT 8">
+                <div class="overlay"></div>
+                <h3 id="littletext15">LittleBoys#15</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle15">Prix : 150€</strong></p>
+                <a href="achat7.html?title=LittleBoys#15" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little13" data-sold="false">
+                <img id="little13" src="littleboys13.png" alt="NFT 9">
+                <div class="overlay"></div>
+                <h3 id="littletext13">LittleBoys#13</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle13">Prix : 110€</strong></p>
+                <a href="achat8.html?title=LittleBoys#13" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little3" data-sold="false">
+                <img id="little3" src="littleboys3.png" alt="NFT 10">
+                <div class="overlay"></div>
+                <h3 id="littletext3">LittleBoys#3</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle3">Prix : 140€</strong></p>
+                <a href="achat9.html?title=LittleBoys#3" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little18" data-sold="false">
+                <img id="little18" src="littleboys18.png" alt="NFT 11">
+                <div class="overlay"></div>
+                <h3 id="littletext18">LittleBoys#18</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle18">Prix : 160€</strong></p>
+                <a href="achat10.html?title=LittleBoys#18" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little12" data-sold="false">
+                <img id="little12" src="littleboys12.png" alt="NFT 12">
+                <div class="overlay"></div>
+                <h3 id="littletext12">LittleBoys#12</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle12">Prix : 120€</strong></p>
+                <a href="achat11.html?title=LittleBoys#12" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little2" data-sold="false">
+                <img id="little2" src="littleboys2.png" alt="NFT 13">
+                <div class="overlay"></div>
+                <h3 id="littletext2">LittleBoys#2</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle2">Prix : 120€</strong></p>
+                <a href="achat12.html?title=LittleBoys#12" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little14" data-sold="false">
+                <img id="little14" src="littleboys14.png" alt="NFT 14">
+                <div class="overlay"></div>
+                <h3 id="littletext14">LittleBoys#14</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle14">Prix : 110€</strong></p>
+                <a href="achat13.html?title=LittleBoys#12" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little17" data-sold="false">
+                <img id="little17" src="littleboys17.png" alt="NFT 15">
+                <div class="overlay"></div>
+                <h3 id="littletext17">LittleBoys#17</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle17">Prix : 140€</strong></p>
+                <a href="achat14.html?title=LittleBoys#17" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little16" data-sold="false">
+                <img id="little16" src="littleboys16.png" alt="NFT 16">
+                <div class="overlay"></div>
+                <h3 id="littletext16">LittleBoys#16</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle16">Prix : 120€</strong></p>
+                <a href="achat15.html?title=LittleBoys#16" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little21" data-sold="false">
+                <img id="little21" src="littleboys21.png" alt="NFT 17">
+                <div class="overlay"></div>
+                <h3 id="littletext21">LittleBoys#21</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle21">Prix : 120€</strong></p>
+                <a href="achat16.html?title=LittleBoys#21" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little1" data-sold="false">
+                <img id="little1" src="littleboys1.png" alt="NFT 18">
+                <div class="overlay"></div>
+                <h3 id="littletext1">LittleBoys#1</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle1">Prix : 200€</strong></p>
+                <a href="achat17.html?title=LittleBoys#1" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little4" data-sold="false">
+                <img id="little4" src="littleboys4.png" alt="NFT 19">
+                <div class="overlay"></div>
+                <h3 id="littletext4">LittleBoys#4</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle4">Prix : 120€</strong></p>
+                <a href="achat18.html?title=LittleBoys#4" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little6" data-sold="false">
+                <img id="little6" src="littleboys6.png" alt="NFT 20">
+                <div class="overlay"></div>
+                <h3 id="littletext6">LittleBoys#6</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle6">Prix : 120€</strong></p>
+                <a href="achat19.html?title=LittleBoys#6" class="buy-button">Acheter</a>
+            </div>
+
+
+            <div class="gallery-item" data-id="little24" data-sold="false">
+                <img id="little24" src="littleboys24.png" alt="NFT 21">
+                <div class="overlay"></div>
+                <h3 id="littletext24">LittleBoys#24</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle24">Prix : 120€</strong></p>
+                <a href="achat20.html?title=LittleBoys#24" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little27" data-sold="false">
+                <img id="little27" src="littleboys27.png" alt="NFT 22">
+                <div class="overlay"></div>
+                <h3 id="littletext27">LittleBoys#27</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle27">Prix : 140€</strong></p>
+                <a href="achat21.html?title=LittleBoys#27" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little29" data-sold="false">
+                <img id="little29" src="littleboys29.png" alt="NFT 23">
+                <div class="overlay"></div>
+                <h3 id="littletext29">LittleBoys#29</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle29">Prix : 150€</strong></p>
+                <a href="achat22.html?title=LittleBoys#29" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little26" data-sold="false">
+                <img id="little26" src="littleboys26.png" alt="NFT 24">
+                <div class="overlay"></div>
+                <h3 id="littletext26">LittleBoys#26</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle26">Prix : 140€</strong></p>
+                <a href="achat23.html?title=LittleBoys#26" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little38" data-sold="false">
+                <img id="little38" src="littleboys38.png" alt="NFT 25">
+                <div class="overlay"></div>
+                <h3 id="littletext38">LittleBoys#38</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle38">Prix : 140€</strong></p>
+                <a href="achat24.html?title=LittleBoys#38" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little70" data-sold="false">
+                <img id="little70" src="littleboys70.png" alt="NFT 26">
+                <div class="overlay"></div>
+                <h3 id="littletext70">LittleBoys#70</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle70">Prix : 140€</strong></p>
+                <a href="achat25.html?title=LittleBoys#70" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little40" data-sold="false">
+                <img id="little40" src="littleboys40.png" alt="NFT 27">
+                <div class="overlay"></div>
+                <h3 id="littletext40">LittleBoys#40</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle40">Prix : 120€</strong></p>
+                <a href="achat26.html?title=LittleBoys#40" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little31" data-sold="false">
+                <img id="little31" src="littleboys31.png" alt="NFT 28">
+                <div class="overlay"></div>
+                <h3 id="littletext31">LittleBoys#31</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle31">Prix : 120€</strong></p>
+                <a href="achat27.html?title=LittleBoys#31" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little27" data-sold="false">
+                <img id="little27" src="littleboys27.png" alt="NFT 29">
+                <div class="overlay"></div>
+                <h3 id="littletext27">LittleBoys#27</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle27">Prix : 140€</strong></p>
+                <a href="achat28.html?title=LittleBoys#27" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little35" data-sold="false">
+                <img id="little35" src="littleboys35.png" alt="NFT 30">
+                <div class="overlay"></div>
+                <h3 id="littletext35">LittleBoys#35</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle35">Prix : 140€</strong></p>
+                <a href="achat29.html?title=LittleBoys#35" class="buy-button">Acheter</a>
+            </div>
+
+            <div class="gallery-item" data-id="little23" data-sold="false">
+                <img id="little23" src="littleboys23.png" alt="NFT 31">
+                <div class="overlay"></div>
+                <h3 id="littletext23">LittleBoys#23</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle23">Prix : 140€</strong></p>
+                <a href="achat30.html?title=LittleBoys#23" class="buy-button">Acheter</a>
+            </div>
+
+            <div class="gallery-item" data-id="little28" data-sold="false">
+                <img id="little28" src="littleboys28.png" alt="NFT 32">
+                <div class="overlay"></div>
+                <h3 id="littletext28">LittleBoys#28</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle28">Prix : 120€</strong></p>
+                <a href="achat31.html?title=LittleBoys#28" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little25" data-sold="false">
+                <img id="little25" src="littleboys25.png" alt="NFT 33">
+                <div class="overlay"></div>
+                <h3 id="littletext25">LittleBoys#25</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle25">Prix : 140€</strong></p>
+                <a href="achat32.html?title=LittleBoys#25" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little30" data-sold="false">
+                <img id="little30" src="littleboys30.png" alt="NFT 34">
+                <div class="overlay"></div>
+                <h3 id="littletext30">LittleBoys#30</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle30">Prix : 120€</strong></p>
+                <a href="achat33.html?title=LittleBoys#25" class="buy-button">Acheter</a>
+            </div>
+            <div class="gallery-item" data-id="little36" data-sold="false">
+                <img id="little36" src="littleboys36.png" alt="NFT 35">
+                <div class="overlay"></div>
+                <h3 id="littletext36">LittleBoys#36</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle36">Prix : 120€</strong></p>
+                <a href="achat34.html?title=LittleBoys#36" class="buy-button">Acheter</a>
+            </div>
+                        <div class="gallery-item" data-id="little90" data-sold="false">
+                <img id="little36" src="littleboys90.png" alt="NFT 36">
+                <div class="overlay"></div>
+                <h3 id="littletext90">LittleBoys#90</h3>
+                <p>No comment.</p>
+                <p><strong id="Prixlittle36">Prix : 140€</strong></p>
+                <a href="achat35.html?title=LittleBoys#90" class="buy-button">Acheter</a>
+            </div>
+
+
+        </div>
+    </div>
+    <script>
+
+        // Récupérer les informations du produit
+        const nomName = document.getElementById('littletext7').innerText;
+        const imageProduit = document.getElementById('little7').src;
+        const prixProduit = document.getElementById('Prixlittle7').innerText;
+
+        // Enregistrer les informations dans le localStorage
+        localStorage.setItem('nomName', nomName);
+        localStorage.setItem('imageProduit', imageProduit);
+        localStorage.setItem('prixProduit', prixProduit);
+
+        const nomName1 = document.getElementById('littletext9').innerText;
+        const imageProduit1 = document.getElementById('little9').src;
+        const prixProduit1 = document.getElementById('Prixlittle9').innerText;
+        localStorage.setItem('nomName1', nomName1);
+        localStorage.setItem('imageProduit1', imageProduit1);
+        localStorage.setItem('prixProduit1', prixProduit1);
+
+        const nomName2 = document.getElementById('littletext10').innerText;
+        const imageProduit2 = document.getElementById('little10').src;
+        const prixProduit2  = document.getElementById('Prixlittle10').innerText;
+        localStorage.setItem('nomName2', nomName2);
+        localStorage.setItem('imageProduit2', imageProduit2);
+        localStorage.setItem('prixProduit2', prixProduit2);
+
+        const nomName3 = document.getElementById('littletext8').innerText;
+        const imageProduit3 = document.getElementById('little8').src;
+        const prixProduit3  = document.getElementById('Prixlittle8').innerText;
+        localStorage.setItem('nomName3', nomName3);
+        localStorage.setItem('imageProduit3', imageProduit3);
+        localStorage.setItem('prixProduit3', prixProduit3);
+
+        const nomName4 = document.getElementById('littletext5').innerText;
+        const imageProduit4 = document.getElementById('little5').src;
+        const prixProduit4 = document.getElementById('Prixlittle5').innerText;
+         // Enregistrer les informations dans le localStorage
+        localStorage.setItem('nomName4', nomName4);
+        localStorage.setItem('imageProduit4', imageProduit4);
+        localStorage.setItem('prixProduit4', prixProduit4);
+
+        const nomName5 = document.getElementById('littletext11').innerText;
+        const imageProduit5 = document.getElementById('little11').src;
+        const prixProduit5 = document.getElementById('Prixlittle11').innerText;
+        localStorage.setItem('nomName5', nomName5);
+        localStorage.setItem('imageProduit5', imageProduit5);
+        localStorage.setItem('prixProduit5', prixProduit5);
+
+        const nomName6 = document.getElementById('littletext19').innerText;
+        const imageProduit6 = document.getElementById('little19').src;
+        const prixProduit6 = document.getElementById('Prixlittle19').innerText;
+        localStorage.setItem('nomName6', nomName6);
+        localStorage.setItem('imageProduit6', imageProduit6);
+        localStorage.setItem('prixProduit6', prixProduit6);
+
+        const nomName7 = document.getElementById('littletext15').innerText;
+        const imageProduit7 = document.getElementById('little15').src;
+        const prixProduit7 = document.getElementById('Prixlittle15').innerText;
+        localStorage.setItem('nomName7', nomName7);
+        localStorage.setItem('imageProduit7', imageProduit7);
+        localStorage.setItem('prixProduit7', prixProduit7);
+
+        const nomName8 = document.getElementById('littletext13').innerText;
+        const imageProduit8 = document.getElementById('little13').src;
+        const prixProduit8 = document.getElementById('Prixlittle13').innerText;
+        localStorage.setItem('nomName8', nomName8);
+        localStorage.setItem('imageProduit8', imageProduit8);
+        localStorage.setItem('prixProduit8', prixProduit8);
+
+
+        const nomName9 = document.getElementById('littletext3').innerText;
+        const imageProduit9 = document.getElementById('little3').src;
+        const prixProduit9 = document.getElementById('Prixlittle3').innerText;
+        localStorage.setItem('nomName9', nomName9);
+        localStorage.setItem('imageProduit9', imageProduit9);
+        localStorage.setItem('prixProduit9', prixProduit9);
+
+        const nomName10 = document.getElementById('littletext18').innerText;
+        const imageProduit10 = document.getElementById('little18').src;
+        const prixProduit10 = document.getElementById('Prixlittle18').innerText;
+        localStorage.setItem('nomName10', nomName10);
+        localStorage.setItem('imageProduit10', imageProduit10);
+        localStorage.setItem('prixProduit10', prixProduit10);
+
+        const nomName11 = document.getElementById('littletext12').innerText;
+        const imageProduit11 = document.getElementById('little12').src;
+        const prixProduit11 = document.getElementById('Prixlittle12').innerText;
+        localStorage.setItem('nomName11', nomName11);
+        localStorage.setItem('imageProduit11', imageProduit11);
+        localStorage.setItem('prixProduit11', prixProduit11);
+
+        const nomName12 = document.getElementById('littletext2').innerText;
+        const imageProduit12 = document.getElementById('little2').src;
+        const prixProduit12 = document.getElementById('Prixlittle2').innerText;
+        localStorage.setItem('nomName12', nomName12);
+        localStorage.setItem('imageProduit12', imageProduit12);
+        localStorage.setItem('prixProduit12', prixProduit12);
+
+        const nomName13 = document.getElementById('littletext14').innerText;
+        const imageProduit13 = document.getElementById('little14').src;
+        const prixProduit13 = document.getElementById('Prixlittle14').innerText;
+        localStorage.setItem('nomName13', nomName13);
+        localStorage.setItem('imageProduit13', imageProduit13);
+        localStorage.setItem('prixProduit13', prixProduit13);
+
+        const nomName14 = document.getElementById('littletext17').innerText;
+        const imageProduit14 = document.getElementById('little17').src;
+        const prixProduit14 = document.getElementById('Prixlittle17').innerText;
+        localStorage.setItem('nomName14', nomName14);
+        localStorage.setItem('imageProduit14', imageProduit14);
+        localStorage.setItem('prixProduit14', prixProduit14);
+
+        const nomName15 = document.getElementById('littletext16').innerText;
+        const imageProduit15 = document.getElementById('little16').src;
+        const prixProduit15 = document.getElementById('Prixlittle16').innerText;
+        localStorage.setItem('nomName15', nomName15);
+        localStorage.setItem('imageProduit15', imageProduit15);
+        localStorage.setItem('prixProduit15', prixProduit15);
+
+        const nomName16 = document.getElementById('littletext21').innerText;
+        const imageProduit16 = document.getElementById('little21').src;
+        const prixProduit16 = document.getElementById('Prixlittle21').innerText;
+        localStorage.setItem('nomName16', nomName16);
+        localStorage.setItem('imageProduit16', imageProduit16);
+        localStorage.setItem('prixProduit16', prixProduit16);
+
+        const nomName17 = document.getElementById('littletext1').innerText;
+        const imageProduit17 = document.getElementById('little1').src;
+        const prixProduit17 = document.getElementById('Prixlittle1').innerText;
+        localStorage.setItem('nomName17', nomName17);
+        localStorage.setItem('imageProduit17', imageProduit17);
+        localStorage.setItem('prixProduit17', prixProduit17);
+
+        const nomName18 = document.getElementById('littletext4').innerText;
+        const imageProduit18 = document.getElementById('little4').src;
+        const prixProduit18 = document.getElementById('Prixlittle4').innerText;
+        localStorage.setItem('nomName18', nomName18);
+        localStorage.setItem('imageProduit18', imageProduit18);
+        localStorage.setItem('prixProduit18', prixProduit18);
+
+        const nomName19 = document.getElementById('littletext6').innerText;
+        const imageProduit19 = document.getElementById('little6').src;
+        const prixProduit19 = document.getElementById('Prixlittle6').innerText;
+        localStorage.setItem('nomName19', nomName19);
+        localStorage.setItem('imageProduit19', imageProduit19);
+        localStorage.setItem('prixProduit19', prixProduit19);
+
+
+
+        const nomName20 = document.getElementById('littletext24').innerText;
+        const imageProduit20 = document.getElementById('little24').src;
+        const prixProduit20 = document.getElementById('Prixlittle24').innerText;
+        localStorage.setItem('nomName20', nomName20);
+        localStorage.setItem('imageProduit20', imageProduit20);
+        localStorage.setItem('prixProduit20', prixProduit20);
+
+        const nomName21 = document.getElementById('littletext27').innerText;
+        const imageProduit21 = document.getElementById('little27').src;
+        const prixProduit21 = document.getElementById('Prixlittle27').innerText;
+        localStorage.setItem('nomName21', nomName21);
+        localStorage.setItem('imageProduit21', imageProduit21);
+        localStorage.setItem('prixProduit21', prixProduit21);
+
+        const nomName22 = document.getElementById('littletext29').innerText;
+        const imageProduit22 = document.getElementById('little29').src;
+        const prixProduit22 = document.getElementById('Prixlittle29').innerText;
+        localStorage.setItem('nomName22', nomName22);
+        localStorage.setItem('imageProduit22', imageProduit22);
+        localStorage.setItem('prixProduit22', prixProduit22);
+
+        const nomName23 = document.getElementById('littletext26').innerText;
+        const imageProduit23 = document.getElementById('little26').src;
+        const prixProduit23 = document.getElementById('Prixlittle26').innerText;
+        localStorage.setItem('nomName23', nomName23);
+        localStorage.setItem('imageProduit23', imageProduit23);
+        localStorage.setItem('prixProduit23', prixProduit23);
+
+        const nomName24 = document.getElementById('littletext38').innerText;
+        const imageProduit24 = document.getElementById('little38').src;
+        const prixProduit24 = document.getElementById('Prixlittle38').innerText;
+        localStorage.setItem('nomName24', nomName24);
+        localStorage.setItem('imageProduit24', imageProduit24);
+        localStorage.setItem('prixProduit24', prixProduit24);
+
+        const nomName25 = document.getElementById('littletext70').innerText;
+        const imageProduit25 = document.getElementById('little70').src;
+        const prixProduit25 = document.getElementById('Prixlittle70').innerText;
+        localStorage.setItem('nomName25', nomName25);
+        localStorage.setItem('imageProduit25', imageProduit25);
+        localStorage.setItem('prixProduit25', prixProduit25);
+
+        const nomName26 = document.getElementById('littletext40').innerText;
+        const imageProduit26 = document.getElementById('little40').src;
+        const prixProduit26 = document.getElementById('Prixlittle40').innerText;
+        localStorage.setItem('nomName26', nomName26);
+        localStorage.setItem('imageProduit26', imageProduit26);
+        localStorage.setItem('prixProduit26', prixProduit26);
+
+        const nomName27 = document.getElementById('littletext31').innerText;
+        const imageProduit27 = document.getElementById('little31').src;
+        const prixProduit27 = document.getElementById('Prixlittle31').innerText;
+        localStorage.setItem('nomName27', nomName27);
+        localStorage.setItem('imageProduit27', imageProduit27);
+        localStorage.setItem('prixProduit27', prixProduit27);
+
+        const nomName28 = document.getElementById('littletext27').innerText;
+        const imageProduit28 = document.getElementById('little27').src;
+        const prixProduit28 = document.getElementById('Prixlittle27').innerText;
+        localStorage.setItem('nomName28', nomName28);
+        localStorage.setItem('imageProduit28', imageProduit28);
+        localStorage.setItem('prixProduit28', prixProduit28);
+
+        const nomName29 = document.getElementById('littletext35').innerText;
+        const imageProduit29 = document.getElementById('little35').src;
+        const prixProduit29 = document.getElementById('Prixlittle35').innerText;
+        localStorage.setItem('nomName29', nomName29);
+        localStorage.setItem('imageProduit29', imageProduit29);
+        localStorage.setItem('prixProduit29', prixProduit29);
+
+        const nomName30 = document.getElementById('littletext23').innerText;
+        const imageProduit30 = document.getElementById('little23').src;
+        const prixProduit30 = document.getElementById('Prixlittle23').innerText;
+        localStorage.setItem('nomName30', nomName30);
+        localStorage.setItem('imageProduit30', imageProduit30);
+        localStorage.setItem('prixProduit30', prixProduit30);
+
+        const nomName31 = document.getElementById('littletext28').innerText;
+        const imageProduit31 = document.getElementById('little28').src;
+        const prixProduit31 = document.getElementById('Prixlittle28').innerText;
+        localStorage.setItem('nomName31', nomName31);
+        localStorage.setItem('imageProduit31', imageProduit31);
+        localStorage.setItem('prixProduit31', prixProduit31);
+
+        const nomName32 = document.getElementById('littletext25').innerText;
+        const imageProduit32 = document.getElementById('little25').src;
+        const prixProduit32 = document.getElementById('Prixlittle25').innerText;
+        localStorage.setItem('nomName32', nomName32);
+        localStorage.setItem('imageProduit32', imageProduit32);
+        localStorage.setItem('prixProduit32', prixProduit32);
+
+        const nomName33 = document.getElementById('littletext30').innerText;
+        const imageProduit33 = document.getElementById('little30').src;
+        const prixProduit33 = document.getElementById('Prixlittle30').innerText;
+        localStorage.setItem('nomName33', nomName33);
+        localStorage.setItem('imageProduit33', imageProduit33);
+        localStorage.setItem('prixProduit33', prixProduit33);
+
+
+        const nomName34 = document.getElementById('littletext36').innerText;
+        const imageProduit34 = document.getElementById('little36').src;
+        const prixProduit34 = document.getElementById('Prixlittle36').innerText;
+        localStorage.setItem('nomName34', nomName34);
+        localStorage.setItem('imageProduit34', imageProduit34);
+        localStorage.setItem('prixProduit34', prixProduit34);
+
+        const nomName35 = document.getElementById('littletext90').innerText;
+        const imageProduit35 = document.getElementById('little90').src;
+        const prixProduit35 = document.getElementById('Prixlittle90').innerText;
+        localStorage.setItem('nomName35', nomName35);
+        localStorage.setItem('imageProduit35', imageProduit35);
+        localStorage.setItem('prixProduit35', prixProduit35);
+
+                // Ajout du changement de mode jour/nuit
+        const themeToggleBtn = document.getElementById('themeToggle');
+        themeToggleBtn.addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                themeToggleBtn.innerText = 'Mode Jour';
+            } else {
+                themeToggleBtn.innerText = 'Mode Nuit';
+            }
+        });
+
+
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault(); // Désactive le menu contextuel
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const galleryItems = document.querySelectorAll('.gallery-item');
+
+            galleryItems.forEach(function(item) {
+                const id = item.getAttribute('data-id');
+                const isSold = localStorage.getItem(`sold_${id}`) === 'true';
+
+                if (isSold) {
+                    item.setAttribute('data-sold', 'true');
+                    item.querySelector('.buy-button').innerText = 'Vendu';
+                    item.querySelector('.buy-button').classList.add('sold-button');
+                    item.querySelector('.buy-button').style.pointerEvents = 'none';
+                    item.querySelector('img').style.opacity = '0.5';
+                    item.querySelector('.overlay').style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+

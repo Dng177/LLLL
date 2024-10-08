@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Achat</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: space-between;
+            background-color: #f0f0f0;
+            margin: 0;
+            height: 100vh; /* Utilisez toute la hauteur de la fenêtre */
+            align-items: center; /* Centre verticalement le contenu du body */
+            flex-wrap: wrap; /* Permet aux éléments de passer à la ligne si nécessaire */
+            overflow: hidden; /* Empêche le défilement */
+        }
+        .left-position, .right-position {
+            flex: 1;
+            min-width: 300px; /* Assure que les éléments ne deviennent pas trop petits */
+            box-sizing: border-box; /* Inclut le padding et les bordures dans les dimensions des éléments */
+        }
+        .left-position {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        #imageProduit14 {
+               filter: blur(3px);
+            max-width: 90%; /* Réduit la taille de l'image */
+            width: 400px; /* Largeur fixe pour les ordinateurs */
+            height: auto;      
+            border-radius: 15px;
+            object-fit: contain;
+            margin: 0 auto; /* Centre l'image horizontalement */
+        }
+        .right-position {
+            background-color: aliceblue;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+        }
+        .position-encadrage {
+            margin-top: 30px;
+        }
+        .encadrage {
+            background: transparent;
+            border-color: black;
+            padding: 20px 5%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            border-radius: 15px;
+        }
+        #acheter {
+            padding: 20px 5%;
+            margin-top: 50px;
+            background-color: #77aaff;
+            border-radius: 15px;
+            color: white;
+            transition: 0.3s ease-out;
+            cursor: pointer;
+            text-align: center;
+        }
+        #acheter:hover {
+            background-color: #3055c3;
+        }
+        .littleboy {
+            margin-top: 50px;
+            font-size: 20px;
+        }
+        #nomName14 {
+            font-size: 38px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 60%;
+            max-width: 600px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            flex-direction: column; /* Pour que l'image et les détails soient centrés */
+        }
+        .modal-content img {
+            width: 100%;
+               filter: blur(2px);
+            max-width: 200px;
+            border-radius: 10px;
+            margin-bottom: 20px; /* Espace entre l'image et les détails */
+        }
+        .modal-details {
+            width: 100%;
+            text-align: center; /* Centre le texte */
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover, .close:focus {
+            color: black;
+            cursor: pointer;
+        }
+        #effectuerPaiement {
+            background-color: #77aaff;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 20px;
+        }
+        #effectuerPaiement:hover {
+            background-color: #3055c3;
+        }
+        #downloadLink {
+            display: none;
+            margin-top: 20px;
+        }
+        #downloadButton {
+            background-color: #77aaff;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        #downloadButton:hover {
+            background-color: #3055c3;
+        }
+
+        /* Styles pour les petits écrans */
+        @media screen and (max-width: 768px) {
+            .left-position, .right-position {
+                width: 100%;
+                padding: 0;
+            }
+
+            #imageProduit14 {
+                width: 90%;
+                margin: 0 auto;
+            }
+
+            .right-position {
+                margin-top: 20px;
+                padding: 10px;
+            }
+
+            #acheter {
+                width: 100%;
+                max-width: 300px;
+                margin: 20px auto;
+            }
+
+            .encadrage {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .modal-content {
+                width: 90%;
+                margin: 10% auto;
+            }
+        }
+
+        /* Styles pour les écrans moyens (tablettes) */
+        @media screen and (min-width: 769px) and (max-width: 1024px) {
+            .left-position {
+                width: 50%;
+                margin-left: 5%;
+            }
+
+            .right-position {
+                width: 45%;
+                margin-left: 5%;
+            }
+
+            #acheter {
+                width: 80%;
+                margin-left: 10%;
+            }
+        }
+
+        /* Prévenir la sélection de texte */
+        body {
+            user-select: none; /* Prévenir la sélection de texte */
+        }
+    </style>
+</head>
+<body>
+    <div class="left-position">
+        <img id="imageProduit14" src="" alt="">
+    </div>
+    <div class="right-position">
+        <div class="littleboy">LittleBoys #17</div>
+        <h3 id="nomName14"></h3>
+        <div class="position-encadrage">
+            <div class="encadrage">
+                <p id="prixProduit14"></p>
+            </div>
+            <button id="acheter">Acheter maintenant</button>
+        </div>
+    </div>
+
+    <!-- Fenêtre modale -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <img id="modalImage" src="" alt="">
+            <div class="modal-details">
+                <span class="close">&times;</span>
+                <h2 id="modalTitle"></h2>
+                <p id="modalPrice"></p>
+                <div id="paypal-button-container"></div>
+                <div id="downloadLink">
+                    <a id="downloadButton" href="" download>Télécharger votre image</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.paypal.com/sdk/js?client-id=AcfH6fEKm_FChH7A8wWOjGxx4626tajAGhsIE6gT-inCEza0nGvuZER330clXz6iA_LvNTNcHIl2SQiS&currency=EUR"></script>
+    <script>
+        // Récupérer les informations depuis le localStorage
+        const nomName14 = localStorage.getItem('nomName14');
+        const imageProduit14 = localStorage.getItem('imageProduit14');
+        const prixProduit14 = localStorage.getItem('prixProduit14');
+
+        // Afficher les informations sur la page
+        document.getElementById('nomName14').innerText = nomName14;
+        document.getElementById('imageProduit14').src = imageProduit14;
+        document.getElementById('prixProduit14').innerText = ` ${prixProduit14}`;
+
+        // Variables pour gérer l'état du bouton PayPal
+        let paypalButtonsRendered = false;
+
+        // Ouvrir le modal au clic sur "Acheter maintenant"
+        const modal = document.getElementById('myModal');
+        const btn = document.getElementById('acheter');
+        const span = document.getElementsByClassName('close')[0];
+
+        btn.onclick = function() {
+            document.getElementById('modalImage').src = imageProduit14;
+            document.getElementById('modalTitle').innerText = nomName14;
+            document.getElementById('modalPrice').innerText = ` ${prixProduit14} `;
+            modal.style.display = "block";
+            
+            // Vérifier si les boutons PayPal ont déjà été rendus
+            if (!paypalButtonsRendered) {
+                // Initialiser les boutons PayPal
+                paypal.Buttons({
+                    createOrder: function (data, actions) {
+                        return actions.order.create({
+                            purchase_units: [{
+                                amount: {
+                                    value: '140' // Utilisez le prix réel ici
+                                }
+                            }]
+                        });
+                    },
+                    onApprove: function (data, actions) {
+                        return actions.order.capture().then(function (details) {
+                            alert('Transaction effectuée par ' + details.payer.name.given_name);
+
+                            // Marquer l'œuvre comme vendue dans le localStorage
+                            localStorage.setItem('sold_little17', 'true'); // Remplacez "little7" par l'ID approprié
+
+                            // Afficher le lien de téléchargement après un paiement réussi
+                            const downloadLink = document.getElementById('downloadLink');
+                            const downloadButton = document.getElementById('downloadButton');
+                            downloadButton.href = 'littleboys17.png'; // Remplacez par l'URL de votre image
+
+                            // Désactiver le bouton d'achat
+                            btn.style.display = 'none';
+                            downloadLink.style.display = 'block'; // Afficher le lien de téléchargement
+                        });
+                    },
+                    onCancel: function (data) {
+                        alert('Transaction annulée.');
+                    },
+                    onError: function (err) {
+                        console.error('Erreur lors de la transaction PayPal:', err);
+                        alert('Une erreur est survenue. Veuillez réessayer.');
+                    }
+                }).render('#paypal-button-container');
+
+                // Marquer les boutons PayPal comme rendus
+                paypalButtonsRendered = true;
+            }
+        }
+
+        // Fermer le modal
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Désactiver le copier-coller
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.addEventListener('copy', (e) => e.preventDefault());
+            document.addEventListener('cut', (e) => e.preventDefault());
+            document.addEventListener('paste', (e) => e.preventDefault());
+        });
+
+        // Désactiver le clic droit
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+    </script>
+</body>
+</html>
